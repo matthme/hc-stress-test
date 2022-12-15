@@ -1,0 +1,19 @@
+[profile.dev]
+opt-level = "z"
+
+[profile.release]
+opt-level = "z"
+
+[workspace]
+members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
+
+[workspace.dependencies]
+hdi = "0.1.10"
+hdk = "0.0.163"
+serde = "1"
+
+[workspace.dependencies.files]
+path = "dnas/files/zomes/coordinator/files"
+
+[workspace.dependencies.files_integrity]
+path = "dnas/files/zomes/integrity/files"

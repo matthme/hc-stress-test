@@ -1,0 +1,18 @@
+---
+manifest_version: "1"
+name: hc-stress-test
+description: ~
+roles:
+  - name: files
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/files/workdir/files.dna"
+      modifiers:
+        network_seed: ~
+        properties: ~
+        origin_time: ~
+        quantum_time: ~
+      version: ~
+      clone_limit: 0

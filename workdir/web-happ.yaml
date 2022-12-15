@@ -1,0 +1,7 @@
+---
+manifest_version: "1"
+name: hc-stress-test
+ui:
+  bundled: "../ui/dist.zip"
+happ_manifest:
+  bundled: "./hc-stress-test.happ"
