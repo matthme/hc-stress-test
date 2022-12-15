@@ -8,7 +8,6 @@ import '@material/mwc-circular-progress';
 
 import './file-detail';
 
-@customElement('all-images')
 export class AllImages extends LitElement {
   @consume({ context: appWebsocketContext })
   appWebsocket!: AppWebsocket;

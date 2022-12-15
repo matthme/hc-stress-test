@@ -12,6 +12,9 @@ import { appWebsocketContext, appInfoContext } from './contexts';
 import { AllImages } from './files/files/all-images';
 import { decode } from '@msgpack/msgpack';
 
+
+customElements.define("all-images", AllImages)
+
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
   @state() loading = true;
@@ -110,13 +113,13 @@ export class HolochainApp extends LitElement {
       <main>
         <h1>Upload image:</h1>
 
-        <div id="content" style="display: flex; flex-direction: row;">
-          <div style="display: flex; flex-direction: column;">
+        <div id="content" style="display: flex; flex-direction: column;">
+          <div style="display: flex; flex-direction: row;">
             <input
               style="margin-top: 7px;"
               type="file"
               id="file-upload"
-              accept="image/png, image/jpeg"
+              accept="image/png"
               @change=${this.loadFileBytes}
             >
             number of copies: <input type="number" min="1" id="n-copies">

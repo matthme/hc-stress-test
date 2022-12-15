@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { state, customElement, property } from 'lit/decorators.js';
+import { state, customElement, property, query } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, Record, ActionHash, InstalledAppInfo } from '@holochain/client';
 import { consume } from '@lit-labs/context';
 import { Task } from '@lit-labs/task';
@@ -31,6 +31,9 @@ export class FileDetail extends LitElement {
 
   @state()
   displayImg: boolean = false;
+
+  @query("#image")
+  image!: HTMLImageElement;
 
   _fetchRecord = new Task(this, ([fileHash]) => this.appWebsocket.callZome({
       cap_secret: null,
@@ -76,27 +79,32 @@ export class FileDetail extends LitElement {
   renderDetail(record: Record) {
     console.log("RENDERING IMAGE DETAIL");
     const file = decode((record.entry as any).Present.entry) as File;
-    const decoder = new TextDecoder('utf8');
-    const base64String = btoa(decoder.decode(file.data));
-    const imgSrc = `base64:${base64String}`;
+    // const decoder = new TextDecoder('utf8');
+    // const base64String = btoa(decoder.decode(file.data));
+    // const imgSrc = `base64:${base64String}`;
+    // this.image.src = URL.createObjectURL(
+    //   new Blob([file.data.buffer], { type: 'image/png' } /* (1) */)
+    // );
 
     return html`
       <div style="display: flex; flex-direction: column">
       	<div style="display: flex; flex-direction: row">
           <div style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? serializeHash(this.fileHash) : "file hash (yet) undefined"}</div>
           <div style="font-size: 18px; flex: 1;" class="hash-hover">UID: ${file.uid}</div>
-          <img
-            src=${imgSrc}
-            class="${classMap({
-                  hidden: !this.displayImg,
-                })} hover-img"
-            style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? serializeHash(this.fileHash) : "file hash (yet) undefined"}</span>
 
 
         </div>
 
       </div>
     `;
+
+// <!-- <img
+// id="image"
+// class="${classMap({
+//       hidden: !this.displayImg,
+//     })} hover-img"
+// style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? serializeHash(this.fileHash) : "file hash (yet) undefined"}</span> -->
+
 
 // <!-- <mwc-icon-button style="margin-left: 8px" icon="edit" @click=${() => { this._editing = true; } }></mwc-icon-button>
 // <mwc-icon-button style="margin-left: 8px" icon="delete" @click=${() => this.deleteFile()}></mwc-icon-button> -->
