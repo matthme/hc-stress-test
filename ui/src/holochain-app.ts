@@ -103,13 +103,14 @@ export class HolochainApp extends LitElement {
 
     return html`
       <main>
-        <h1>Upload file:</h1>
+        <h1>Upload image:</h1>
 
         <div id="content">
           <input
             style="margin-top: 7px;"
             type="file"
             id="file-upload"
+            accept="image/png, image/jpeg"
             @change=${this.loadFileBytes}
           >
           number of copies: <input type="number" min="1" id="n-copies">
