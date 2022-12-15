@@ -5,6 +5,7 @@ import html from '@web/rollup-plugin-html';
 import { importMetaAssets } from '@web/rollup-plugin-import-meta-assets';
 import { terser } from 'rollup-plugin-terser';
 import replace from '@rollup/plugin-replace';
+import wasm from "@rollup/plugin-wasm";
 
 export default {
   input: 'index.html',
@@ -22,6 +23,7 @@ export default {
   },
 
   plugins: [
+    wasm(),
     /** Enable using HTML as rollup entrypoint */
     replace({
       'process.env.HC_PORT': '8888',

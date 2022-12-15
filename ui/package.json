@@ -13,7 +13,7 @@
     "package": "npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
-    "@holochain/client": "^0.10.4",
+    "@holochain/client": "file:/home/matthias/code/holochain/holochain/holochain-client-js",
     "@lit-labs/context": "^0.2.0",
     "@lit-labs/task": "^2.0.0",
     "@material/mwc-circular-progress": "^0.27.0",
@@ -37,6 +37,7 @@
     "@rollup/plugin-commonjs": "18.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@rollup/plugin-replace": "^3.0.0",
+    "@rollup/plugin-wasm": "6.0.1",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
     "@web/dev-server": "0.1.21",

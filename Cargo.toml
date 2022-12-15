@@ -8,8 +8,8 @@ opt-level = "z"
 members = ["dnas/*/zomes/coordinator/*", "dnas/*/zomes/integrity/*"]
 
 [workspace.dependencies]
-hdi = "0.1.10"
-hdk = "0.0.163"
+hdi = { git = "https://github.com/holochain/holochain", package = "hdi", rev = "c6bb672d624a884c57ffe588607ffc06aa2f7c74"}
+hdk = { git = "https://github.com/holochain/holochain", package = "hdk", rev = "c6bb672d624a884c57ffe588607ffc06aa2f7c74"}
 serde = "1"
 
 [workspace.dependencies.files]
