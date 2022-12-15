@@ -30,6 +30,9 @@ export class HolochainApp extends LitElement {
   @query("#file-upload")
   fileUpload!: HTMLInputElement;
 
+  @query("#n-copies")
+  copies!: HTMLInputElement;
+
     // TODO! make typing right here
   async loadFileBytes(e: any) {
     const files: FileList = e.target.files;
@@ -56,19 +59,28 @@ export class HolochainApp extends LitElement {
       return;
     }
 
-    console.log("Storing file...")
-    let record = await this.appWebsocket.callZome({
-      cap_secret: null,
-      cell_id: this.appInfo.cell_data[0].cell_id,
-      zome_name: "files",
-      fn_name: "create_file",
-      payload: {
-        data: this.fileBytes,
-      },
-      provenance: this.appInfo.cell_data[0].cell_id[1],
-    });
+    if (!this.copies.valueAsNumber || this.copies.valueAsNumber < 1) {
+      alert!("minimum number of copies is 1.")
+      return;
+    }
 
-    console.log("File stored! Got record back: ", record);
+    for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
+      console.log("Storing file copy ", i,"...");
+      let record = await this.appWebsocket.callZome({
+        cap_secret: null,
+        cell_id: this.appInfo.cell_data[0].cell_id,
+        zome_name: "files",
+        fn_name: "create_file",
+        payload: {
+          data: this.fileBytes,
+        },
+        provenance: this.appInfo.cell_data[0].cell_id[1],
+      });
+
+      console.log("File copy stored! Got record back: ", record);
+    }
+
+
   }
 
   async firstUpdated() {
@@ -100,6 +112,7 @@ export class HolochainApp extends LitElement {
             id="file-upload"
             @change=${this.loadFileBytes}
           >
+          number of copies: <input type="number" min="1" id="n-copies">
 
           <button @click=${this.storeFile}>Store!</button>
         </div>
