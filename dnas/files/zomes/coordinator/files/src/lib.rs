@@ -1,4 +1,4 @@
-pub mod all_files;
+pub mod all_images;
 pub mod file;
 use hdk::prelude::*;
 #[hdk_extern]

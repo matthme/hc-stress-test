@@ -9,6 +9,8 @@ import { provide } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
 import { appWebsocketContext, appInfoContext } from './contexts';
+import { AllImages } from './files/files/all-images';
+import { decode } from '@msgpack/msgpack';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
@@ -65,6 +67,7 @@ export class HolochainApp extends LitElement {
     }
 
     for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
+      const uid = Math.floor(Math.random()*100000);
       console.log("Storing file copy ", i,"...");
       let record = await this.appWebsocket.callZome({
         cap_secret: null,
@@ -73,11 +76,13 @@ export class HolochainApp extends LitElement {
         fn_name: "create_file",
         payload: {
           data: this.fileBytes,
+          uid,
         },
         provenance: this.appInfo.cell_data[0].cell_id[1],
       });
 
       console.log("File copy stored! Got record back: ", record);
+      console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
     }
 
 
@@ -105,17 +110,24 @@ export class HolochainApp extends LitElement {
       <main>
         <h1>Upload image:</h1>
 
-        <div id="content">
-          <input
-            style="margin-top: 7px;"
-            type="file"
-            id="file-upload"
-            accept="image/png, image/jpeg"
-            @change=${this.loadFileBytes}
-          >
-          number of copies: <input type="number" min="1" id="n-copies">
+        <div id="content" style="display: flex; flex-direction: row;">
+          <div style="display: flex; flex-direction: column;">
+            <input
+              style="margin-top: 7px;"
+              type="file"
+              id="file-upload"
+              accept="image/png, image/jpeg"
+              @change=${this.loadFileBytes}
+            >
+            number of copies: <input type="number" min="1" id="n-copies">
 
-          <button @click=${this.storeFile}>Store!</button>
+            <button @click=${this.storeFile}>Store!</button>
+          </div>
+
+          <div>
+            <all-images></all-images>
+          </div>
+
         </div>
       </main>
     `;

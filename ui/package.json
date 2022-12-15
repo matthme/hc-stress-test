@@ -16,6 +16,7 @@
     "@holochain/client": "file:/home/matthias/code/holochain/holochain/holochain-client-js",
     "@lit-labs/context": "^0.2.0",
     "@lit-labs/task": "^2.0.0",
+    "@holochain-open-dev/utils": "^0.3.0",
     "@material/mwc-circular-progress": "^0.27.0",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-textfield": "^0.27.0",

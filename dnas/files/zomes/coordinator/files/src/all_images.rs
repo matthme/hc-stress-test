@@ -1,9 +1,9 @@
 use hdk::prelude::*;
 use files_integrity::*;
 #[hdk_extern]
-pub fn get_all_files(_: ()) -> ExternResult<Vec<ActionHash>> {
-    let path = Path::from("all_files");
-    let links = get_links(path.path_entry_hash()?, LinkTypes::AllFiles, None)?;
+pub fn get_all_images(_: ()) -> ExternResult<Vec<ActionHash>> {
+    let path = Path::from("all_images");
+    let links = get_links(path.path_entry_hash()?, LinkTypes::AllImages, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(

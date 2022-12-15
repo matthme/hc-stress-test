@@ -9,8 +9,8 @@ pub fn create_file(file: File) -> ExternResult<Record> {
                 WasmErrorInner::Guest(String::from("Could not find the newly created File"))
             ),
         )?;
-    let path = Path::from("all_files");
-    create_link(path.path_entry_hash()?, file_hash.clone(), LinkTypes::AllFiles, ())?;
+    let path = Path::from("all_images");
+    create_link(path.path_entry_hash()?, file_hash.clone(), LinkTypes::AllImages, ())?;
     Ok(record)
 }
 #[hdk_extern]

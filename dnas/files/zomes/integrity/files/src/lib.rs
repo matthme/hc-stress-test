@@ -10,4 +10,5 @@ pub enum EntryTypes {
 pub enum LinkTypes {
     FileUpdates,
     AllFiles,
+    AllImages,
 }
