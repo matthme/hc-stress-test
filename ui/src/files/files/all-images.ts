@@ -17,12 +17,12 @@ export class AllImages extends LitElement {
 
 
   _fetchFiles = new Task(this, ([]) => this.appWebsocket.callZome({
-      cap_secret: null,
-      cell_id: this.cellData.cell_id,
-      zome_name: 'files',
-      fn_name: 'get_all_images',
-      payload: null,
-      provenance: this.cellData.cell_id[1]
+    cap_secret: null,
+    cell_id: this.cellData.cell_id,
+    zome_name: 'files',
+    fn_name: 'get_all_images',
+    payload: null,
+    provenance: this.cellData.cell_id[1]
   }) as Promise<Array<ActionHash>>, () => []);
 
   get cellData() {
@@ -33,10 +33,12 @@ export class AllImages extends LitElement {
     if (hashes.length === 0) return html`<span>No files found.</span>`;
 
     return html`
-      <div style="display: flex; flex-direction: column">
+      <div style=""><h2>total hashes: ${hashes.length}</h2></div>
+
+      <div style="display: flex; flex-direction: column; text-align: left">
         ${hashes.map(hash =>
-          html`<file-detail .fileHash=${hash} style="margin-bottom: 16px;" @file-deleted=${() => this._fetchFiles.run()}></file-detail>`
-        )}
+      html`<file-detail .fileHash=${hash} style="margin-bottom: 16px;" @file-deleted=${() => this._fetchFiles.run()}></file-detail>`
+    )}
       </div>
     `;
   }
