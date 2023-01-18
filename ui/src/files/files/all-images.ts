@@ -1,32 +1,33 @@
 import { LitElement, html } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
-import { InstalledCell, AgentPubKey, EntryHash, ActionHash, Record, AppWebsocket, InstalledAppInfo } from '@holochain/client';
+import { InstalledCell, AgentPubKey, EntryHash, ActionHash, Record, AppWebsocket, AppInfo, CellInfo, AppAgentWebsocket } from '@holochain/client';
 import { consume } from '@lit-labs/context';
 import { Task } from '@lit-labs/task';
-import { appWebsocketContext, appInfoContext } from '../../contexts';
+import { appAgentWebsocketContext, appInfoContext } from '../../contexts';
 import '@material/mwc-circular-progress';
 
 import './file-detail';
+import { getCellId } from '../../utils';
 
 export class AllImages extends LitElement {
-  @consume({ context: appWebsocketContext })
-  appWebsocket!: AppWebsocket;
+  @consume({ context: appAgentWebsocketContext })
+  appAgentWebsocket!: AppAgentWebsocket;
 
   @consume({ context: appInfoContext })
-  appInfo!: InstalledAppInfo;
+  appInfo!: AppInfo;
 
 
-  _fetchFiles = new Task(this, ([]) => this.appWebsocket.callZome({
+  _fetchFiles = new Task(this, ([]) => this.appAgentWebsocket.callZome({
     cap_secret: null,
-    cell_id: this.cellData.cell_id,
+    cell_id: this.cellId!,
     zome_name: 'files',
     fn_name: 'get_all_images',
     payload: null,
-    provenance: this.cellData.cell_id[1]
+    provenance: this.cellId![1]
   }) as Promise<Array<ActionHash>>, () => []);
 
-  get cellData() {
-    return this.appInfo.cell_data.find((c: InstalledCell) => c.role_name === 'files')!;
+  get cellId() {
+    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "Provisioned" in c)!);
   }
 
   renderList(hashes: Array<ActionHash>) {

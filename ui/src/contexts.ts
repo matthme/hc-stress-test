@@ -1,5 +1,5 @@
 import { createContext } from '@lit-labs/context';
-import { AppWebsocket, InstalledAppInfo } from '@holochain/client';
+import { AppAgentWebsocket, AppInfo } from '@holochain/client';
 
-export const appWebsocketContext = createContext<AppWebsocket>('appWebsocket');
-export const appInfoContext = createContext<InstalledAppInfo>('appInfo');
+export const appAgentWebsocketContext = createContext<AppAgentWebsocket>('appWebsocket');
+export const appInfoContext = createContext<AppInfo>('appInfo');

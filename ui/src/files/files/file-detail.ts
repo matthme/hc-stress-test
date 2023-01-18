@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { state, customElement, property, query } from 'lit/decorators.js';
-import { InstalledCell, AppWebsocket, EntryHash, Record, ActionHash, InstalledAppInfo } from '@holochain/client';
+import { InstalledCell, AppWebsocket, EntryHash, Record, ActionHash, AppInfo, AppAgentWebsocket, CellInfo } from '@holochain/client';
 import { consume } from '@lit-labs/context';
 import { Task } from '@lit-labs/task';
 import { decode } from '@msgpack/msgpack';
@@ -9,20 +9,20 @@ import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
 import { serializeHash } from "@holochain-open-dev/utils";
 import { classMap } from "lit/directives/class-map.js";
-
+import { getCellId } from '../../utils';
 
 import './edit-file';
 
-import { appInfoContext, appWebsocketContext } from '../../contexts';
+import { appInfoContext, appAgentWebsocketContext } from '../../contexts';
 import { File } from './types';
 
 @customElement('file-detail')
 export class FileDetail extends LitElement {
-  @consume({ context: appWebsocketContext })
-  appWebsocket!: AppWebsocket;
+  @consume({ context: appAgentWebsocketContext })
+  appAgentWebsocket!: AppAgentWebsocket;
 
   @consume({ context: appInfoContext })
-  appInfo!: InstalledAppInfo;
+  appInfo!: AppInfo;
 
   @property({
     hasChanged: (newVal: ActionHash, oldVal: ActionHash) => newVal?.toString() !== oldVal?.toString()
@@ -35,20 +35,22 @@ export class FileDetail extends LitElement {
   @query("#image")
   image!: HTMLImageElement;
 
-  _fetchRecord = new Task(this, ([fileHash]) => this.appWebsocket.callZome({
+
+
+  _fetchRecord = new Task(this, ([fileHash]) => this.appAgentWebsocket.callZome({
       cap_secret: null,
-      cell_id: this.cellData.cell_id,
+      cell_id: this.cellId!,
       zome_name: 'files',
       fn_name: 'get_file',
       payload: fileHash,
-      provenance: this.cellData.cell_id[1]
+      provenance: this.cellId![1]
   }) as Promise<Record | undefined>, () => [this.fileHash]);
 
   @state()
   _editing = false;
 
-  get cellData() {
-    return this.appInfo.cell_data.find((c: InstalledCell) => c.role_name === 'files')!;
+  get cellId() {
+    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "Provisioned" in c)!);
   }
 
   // async deleteFile() {

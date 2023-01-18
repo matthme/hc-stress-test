@@ -3,14 +3,16 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import {
   AppWebsocket,
   ActionHash,
-  InstalledAppInfo,
+  AppInfo,
+  AppAgentWebsocket,
 } from '@holochain/client';
 import { provide } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
-import { appWebsocketContext, appInfoContext } from './contexts';
+import { appAgentWebsocketContext, appInfoContext } from './contexts';
 import { AllImages } from './files/files/all-images';
 import { decode } from '@msgpack/msgpack';
+import { getCellId } from './utils';
 
 
 customElements.define("all-images", AllImages)
@@ -19,15 +21,16 @@ customElements.define("all-images", AllImages)
 export class HolochainApp extends LitElement {
   @state() loading = true;
 
-  @provide({ context: appWebsocketContext })
+  @provide({ context: appAgentWebsocketContext })
   @property({ type: Object })
-  appWebsocket!: AppWebsocket;
+  appAgentWebsocket!: AppAgentWebsocket;
 
+  appWebsocket!: AppWebsocket;
 
 
   @provide({ context: appInfoContext })
   @property({ type: Object })
-  appInfo!: InstalledAppInfo;
+  appInfo!: AppInfo;
 
   @state()
   fileBytes: Uint8Array | undefined;
@@ -72,22 +75,22 @@ export class HolochainApp extends LitElement {
     for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
       const uid = Math.floor(Math.random()*100000);
       console.log("Storing file copy ", i,"...");
-      let record = await this.appWebsocket.callZome({
-        cap_secret: null,
-        cell_id: this.appInfo.cell_data[0].cell_id,
+      const cellInfo = this.appInfo.cell_info["files"].find((c) => "Provisioned" in c)
+      ;
+      let record = await this.appAgentWebsocket.callZome({
+        cell_id: getCellId(cellInfo!)!,
         zome_name: "files",
         fn_name: "create_file",
         payload: {
           data: this.fileBytes,
           uid,
         },
-        provenance: this.appInfo.cell_data[0].cell_id[1],
+        provenance: getCellId(cellInfo!)![1],
       });
 
       console.log("File copy stored! Got record back: ", record);
       console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
     }
-
 
   }
 
@@ -99,6 +102,8 @@ export class HolochainApp extends LitElement {
     this.appInfo = await this.appWebsocket.appInfo({
       installed_app_id: 'hc-stress-test',
     });
+
+    this.appAgentWebsocket = new AppAgentWebsocket(this.appWebsocket, "hc-stress-test");
 
     this.loading = false;
   }

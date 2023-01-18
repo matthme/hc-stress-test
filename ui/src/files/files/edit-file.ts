@@ -1,6 +1,6 @@
 // import { LitElement, html } from 'lit';
 // import { state, customElement, property } from 'lit/decorators.js';
-// import { InstalledCell, ActionHash, EntryHash, AgentPubKey, Record, AppWebsocket, InstalledAppInfo } from '@holochain/client';
+// import { InstalledCell, ActionHash, EntryHash, AgentPubKey, Record, AppWebsocket, AppInfo } from '@holochain/client';
 // import { consume } from '@lit-labs/context';
 // import { decode } from '@msgpack/msgpack';
 // import '@material/mwc-button';
@@ -18,7 +18,7 @@
 //   appWebsocket!: AppWebsocket;
 
 //   @consume({ context: appInfoContext })
-//   appInfo!: InstalledAppInfo;
+//   appInfo!: AppInfo;
 
 //   @property({
 //       hasChanged: (newVal: ActionHash, oldVal: ActionHash) => newVal?.toString() !== oldVal?.toString()
