@@ -27,7 +27,7 @@ export class AllImages extends LitElement {
   }) as Promise<Array<ActionHash>>, () => []);
 
   get cellId() {
-    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "Provisioned" in c)!);
+    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "provisioned" in c)!);
   }
 
   renderList(hashes: Array<ActionHash>) {

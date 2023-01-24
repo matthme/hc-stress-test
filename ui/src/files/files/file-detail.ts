@@ -50,7 +50,7 @@ export class FileDetail extends LitElement {
   _editing = false;
 
   get cellId() {
-    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "Provisioned" in c)!);
+    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "provisioned" in c)!);
   }
 
   // async deleteFile() {

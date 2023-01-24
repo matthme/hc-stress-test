@@ -75,7 +75,7 @@ export class HolochainApp extends LitElement {
     for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
       const uid = Math.floor(Math.random()*100000);
       console.log("Storing file copy ", i,"...");
-      const cellInfo = this.appInfo.cell_info["files"].find((c) => "Provisioned" in c)
+      const cellInfo = this.appInfo.cell_info["files"].find((c) => "provisioned" in c)
       ;
       let record = await this.appAgentWebsocket.callZome({
         cell_id: getCellId(cellInfo!)!,
