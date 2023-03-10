@@ -13,7 +13,7 @@
     "package": "npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
-    "@holochain/client": "file:~/code/holochain/holochain/holochain-client-js",
+    "@holochain/client": "^0.12.5",
     "@lit-labs/context": "^0.2.0",
     "@lit-labs/task": "^2.0.0",
     "@holochain-open-dev/utils": "^0.3.0",
