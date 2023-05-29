@@ -7,7 +7,10 @@ pub fn get_all_images(_: ()) -> ExternResult<Vec<ActionHash>> {
     let get_input: Vec<GetInput> = links
         .into_iter()
         .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
+            link.target.into_action_hash()
+                .ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Link target is not an action hash."))))
+                .unwrap()
+                .into(),
             GetOptions::default(),
         ))
         .collect();

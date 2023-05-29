@@ -20,7 +20,9 @@ pub fn get_file(original_file_hash: ActionHash) -> ExternResult<Option<Record>> 
         .into_iter()
         .max_by(|link_a, link_b| link_b.timestamp.cmp(&link_a.timestamp));
     let latest_file_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
+        Some(link) => link.target.clone().into_action_hash().ok_or(
+            wasm_error!(WasmErrorInner::Guest(format!("Link target is not an action hash.")))
+        )?,
         None => original_file_hash.clone(),
     };
     get(latest_file_hash, GetOptions::default())
