@@ -44,8 +44,7 @@ export class AllImages extends LitElement {
     `;
   }
 
-  render() {
-    console.log("RENDERING ALL IMAGES");
+  renderImages() {
     return this._fetchFiles.render({
       pending: () => html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
         <mwc-circular-progress indeterminate></mwc-circular-progress>
@@ -53,5 +52,14 @@ export class AllImages extends LitElement {
       complete: (hashes) => this.renderList(hashes),
       error: (e: any) => html`<span>Error fetching the images: ${e.data.data}.</span>`
     });
+  }
+
+  render() {
+    return html`
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <button @click=${() => this._fetchFiles.run()} style="margin: 20px 0; width: 180px; height: 40px;">Refresh</button>
+        ${this.renderImages()}
+      </div>
+    `
   }
 }
