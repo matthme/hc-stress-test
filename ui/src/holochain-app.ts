@@ -33,6 +33,15 @@ export class HolochainApp extends LitElement {
   appInfo!: AppInfo;
 
   @state()
+  storing: boolean = false;
+
+  @state()
+  totalImgNrs: number | undefined = undefined;
+
+  @state()
+  currentImgNr: number | undefined = undefined;
+
+  @state()
   fileBytes: Uint8Array | undefined;
 
   @query("#file-upload")
@@ -72,7 +81,12 @@ export class HolochainApp extends LitElement {
       return;
     }
 
+    this.storing = true;
+    this.totalImgNrs = this.copies.valueAsNumber;
+    this.currentImgNr = 0;
+
     for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
+      this.currentImgNr = i;
       const uid = Math.floor(Math.random()*100000);
       console.log("Storing file copy ", i,"...");
       const cellInfo = this.appInfo.cell_info["files"].find((c) => "provisioned" in c)
@@ -91,6 +105,12 @@ export class HolochainApp extends LitElement {
       console.log("File copy stored! Got record back: ", record);
       console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
     }
+
+    setTimeout(() => {
+      this.totalImgNrs = undefined;
+      this.currentImgNr = undefined;
+      this.storing = false
+    }, 3000);
 
   }
 
@@ -131,6 +151,8 @@ export class HolochainApp extends LitElement {
 
             <button @click=${this.storeFile}>Store!</button>
           </div>
+
+          ${this.storing ? html`<div>uploading image ${this.currentImgNr} / ${this.totalImgNrs}</div>` : ``}
 
           <div>
             <all-images></all-images>
