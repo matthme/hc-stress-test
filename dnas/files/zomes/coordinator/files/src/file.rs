@@ -20,8 +20,8 @@ pub fn get_file(original_file_hash: ActionHash) -> ExternResult<Option<Record>> 
         .into_iter()
         .max_by(|link_a, link_b| link_b.timestamp.cmp(&link_a.timestamp));
     let latest_file_hash = match latest_link {
-        Some(link) => ActionHash::from(link.target.clone()),
-        None => original_file_hash.clone(),
+        Some(link) => link.target.into_any_dht_hash().ok_or(wasm_error!(WasmErrorInner::Guest(String::from("Failed to convert link target to AnyDhtHash"))))?,
+        None => AnyDhtHash::from(original_file_hash),
     };
     get(latest_file_hash, GetOptions::default())
 }

@@ -12,4 +12,4 @@ hdk = { workspace = true }
 
 serde = { workspace = true }
 
-files_integrity = { workspace = true } 
+files_integrity = { workspace = true }
