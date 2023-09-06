@@ -7,11 +7,12 @@ import {
   AppAgentWebsocket,
 } from '@holochain/client';
 import { provide } from '@lit-labs/context';
+import { decode } from '@msgpack/msgpack';
 import '@material/mwc-circular-progress';
+import { HappNotification, notify } from '@holochain-launcher/api';
 
 import { appAgentWebsocketContext, appInfoContext } from './contexts';
 import { AllImages } from './files/files/all-images';
-import { decode } from '@msgpack/msgpack';
 import { getCellId } from './utils';
 
 
@@ -55,8 +56,8 @@ export class HolochainApp extends LitElement {
     const files: FileList = e.target.files;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log(e.target?.result);
+    reader.onload = (err) => {
+      console.log(err.target?.result);
     }
     reader.readAsArrayBuffer(files[0]);
     // TODO! make typing right here
@@ -85,13 +86,11 @@ export class HolochainApp extends LitElement {
     this.totalImgNrs = this.copies.valueAsNumber;
     this.currentImgNr = 0;
 
-    for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
-      this.currentImgNr = i;
+    const cellInfo = this.appInfo.cell_info.files.find((c) => "provisioned" in c)
+
+    await Promise.all(new Array(this.totalImgNrs).map(async (_) => {
       const uid = Math.floor(Math.random()*100000);
-      console.log("Storing file copy ", i,"...");
-      const cellInfo = this.appInfo.cell_info["files"].find((c) => "provisioned" in c)
-      ;
-      let record = await this.appAgentWebsocket.callZome({
+      const _record = await this.appAgentWebsocket.callZome({
         cell_id: getCellId(cellInfo!)!,
         zome_name: "files",
         fn_name: "create_file",
@@ -102,9 +101,10 @@ export class HolochainApp extends LitElement {
         provenance: getCellId(cellInfo!)![1],
       });
 
-      console.log("File copy stored! Got record back: ", record);
-      console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
-    }
+      // console.log("File copy stored! Got record back: ", record);
+      // console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
+      if (this.currentImgNr) this.currentImgNr += 1;
+    }));
 
     setTimeout(() => {
       this.totalImgNrs = undefined;
@@ -128,14 +128,41 @@ export class HolochainApp extends LitElement {
     this.loading = false;
   }
 
+  async notifyHigh() {
+    const noticiation: HappNotification = {
+      title: "Hello",
+      body: "This is a message from hc-stress-test",
+      notification_type: "random",
+      icon_file_name: undefined,
+      urgency: "high",
+      timestamp: Date.now(),
+    }
+    setTimeout(async () => notify([noticiation]), 5000);
+  }
+
+
+  async notifyMedium() {
+    const noticiation: HappNotification = {
+      title: "Hello",
+      body: "This is a message from hc-stress-test",
+      notification_type: "random",
+      icon_file_name: undefined,
+      urgency: "medium",
+      timestamp: Date.now(),
+    }
+    setTimeout(async () => notify([noticiation]), 5000);
+  }
+
   render() {
     if (this.loading)
       return html`
         <mwc-circular-progress indeterminate></mwc-circular-progress>
       `;
-
     return html`
       <main>
+        <button @click=${async () => this.notifyHigh()} style="margin-top: 50px;">Notify Launcher in 5s with High Urgency</button>
+        <button @click=${async () => this.notifyMedium()} style="margin-top: 10px;">Notify Launcher in 5s with Medium Urgency</button>
+
         <h1>Upload image:</h1>
 
         <div id="content" style="display: flex; flex-direction: column;">
