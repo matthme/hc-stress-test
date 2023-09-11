@@ -65,8 +65,6 @@ export class HolochainApp extends LitElement {
       const buffer = reader.result as ArrayBuffer;
       const ui8 = new Uint8Array(buffer);
       this.fileBytes = ui8;
-      // create a fake devhub happ release hash from the filehash --> used to compare when joining an applet
-      // to ensure it is the same applet and to allow recognizing same applets across groups
       console.log("File loaded into memory: ", ui8);
     }
   }
@@ -86,25 +84,37 @@ export class HolochainApp extends LitElement {
     this.totalImgNrs = this.copies.valueAsNumber;
     this.currentImgNr = 0;
 
-    const cellInfo = this.appInfo.cell_info.files.find((c) => "provisioned" in c)
+    const cellInfo = this.appInfo.cell_info.files.find((c) => "provisioned" in c);
 
-    await Promise.all(new Array(this.totalImgNrs).map(async (_) => {
-      const uid = Math.floor(Math.random()*100000);
-      const _record = await this.appAgentWebsocket.callZome({
-        cell_id: getCellId(cellInfo!)!,
-        zome_name: "files",
-        fn_name: "create_file",
-        payload: {
-          data: this.fileBytes,
-          uid,
-        },
-        provenance: getCellId(cellInfo!)![1],
-      });
+    console.log("Total image numbers", this.totalImgNrs);
+    console.log("Array: ", new Array(this.totalImgNrs).fill(0));
 
-      // console.log("File copy stored! Got record back: ", record);
-      // console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
-      if (this.currentImgNr) this.currentImgNr += 1;
-    }));
+    try {
+      await Promise.all(new Array(this.totalImgNrs).fill(0).map(async (_) => {
+        console.log("Storing file.");
+        const uid = Math.floor(Math.random()*100000);
+        const record = await this.appAgentWebsocket.callZome({
+          cell_id: getCellId(cellInfo!)!,
+          zome_name: "files",
+          fn_name: "create_file",
+          payload: {
+            data: this.fileBytes,
+            uid,
+          },
+          provenance: getCellId(cellInfo!)![1],
+        });
+
+        console.log("File copy stored! Got record back: ", record);
+        console.log("With entry: ", decode((record.entry as any).Present.entry) as File);
+        if (this.currentImgNr) {
+          this.currentImgNr += 1;
+          this.requestUpdate();
+        };
+      }));
+    } catch(e) {
+      console.error("Failed to store all images: ", e);
+      console.error("stringified error: ", JSON.stringify(e));
+    }
 
     setTimeout(() => {
       this.totalImgNrs = undefined;
