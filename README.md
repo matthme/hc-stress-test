@@ -4,17 +4,17 @@
 
 > PREREQUISITE: set up the [holochain development environment](https://developer.holochain.org/docs/install/).
 
-Enter the nix shell by running this in the root folder of the repository: 
+Enter the nix shell by running this in the root folder of the repository:
 
 ```bash
-nix-shell
+nix develop
 npm install
 ```
 
 **Run all the other instructions in this README from inside this nix-shell, otherwise they won't work**.
 
 ## Running 2 agents
- 
+
 ```bash
 npm start
 ```
