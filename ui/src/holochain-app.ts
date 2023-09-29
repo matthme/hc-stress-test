@@ -9,7 +9,7 @@ import {
 import { provide } from '@lit-labs/context';
 import { decode } from '@msgpack/msgpack';
 import '@material/mwc-circular-progress';
-import { HappNotification, notify } from '@holochain/launcher-api';
+import { HappNotification, NotificationId, notify, resetNotificationCount } from '@holochain/launcher-api';
 
 import { appAgentWebsocketContext, appInfoContext } from './contexts';
 import { AllImages } from './files/files/all-images';
@@ -56,6 +56,12 @@ export class HolochainApp extends LitElement {
 
   @state()
   backgroundNotifications: boolean = false;
+
+  @state()
+  customCountReset: string | undefined;
+
+  @state()
+  unreadNotifications: Array<NotificationId> = [];
 
     // TODO! make typing right here
   async loadFileBytes(e: any) {
@@ -143,6 +149,8 @@ export class HolochainApp extends LitElement {
 
     this.loading = false;
 
+    this.unreadNotifications = this.readUnreadNotifications();
+
     if (window.localStorage.getItem("backgroundNotifications") === "true") {
       this.backgroundNotifications = true;
       this.startBackgroundNotifications();
@@ -163,20 +171,22 @@ export class HolochainApp extends LitElement {
     if (this.interval) clearInterval(this.interval);
   }
 
-  async notifyHigh() {
-    const noticiation: HappNotification = {
+  async notifyHigh(customCountReset?: NotificationId) {
+    const notification: HappNotification = {
       title: "Hello",
       body: "This is a message from hc-stress-test",
       notification_type: "random",
       icon_file_name: undefined,
       urgency: "high",
       timestamp: Date.now(),
+      custom_count_reset: customCountReset,
     }
-    setTimeout(async () => notify([noticiation]), 5000);
+    console.log("Sending notification: ", notification);
+    setTimeout(async () => notify([notification]), 5000);
   }
 
   async notifyHighOutdated() {
-    const noticiation: HappNotification = {
+    const notification: HappNotification = {
       title: "Hello",
       body: "This is an OUTDATED message from hc-stress-test",
       notification_type: "random",
@@ -184,19 +194,46 @@ export class HolochainApp extends LitElement {
       urgency: "high",
       timestamp: (Date.now() - 6*60*1000),
     }
-    setTimeout(async () => notify([noticiation]), 5000);
+    setTimeout(async () => notify([notification]), 5000);
   }
 
-  async notifyMedium() {
-    const noticiation: HappNotification = {
+  async notifyMedium(customCountReset?: NotificationId) {
+    const notification: HappNotification = {
       title: "Hello",
       body: "This is a message from hc-stress-test",
       notification_type: "random",
       icon_file_name: undefined,
       urgency: "medium",
       timestamp: Date.now(),
+      custom_count_reset: customCountReset,
     }
-    setTimeout(async () => notify([noticiation]), 5000);
+    setTimeout(async () => notify([notification]), 5000);
+  }
+
+  readUnreadNotifications(): Array<NotificationId> {
+    let unreadNotifications: Array<NotificationId> = [];
+    const unreadNotificationsJSON: string | null = window.localStorage.getItem("unreadNotifications");
+    if (unreadNotificationsJSON) {
+      unreadNotifications = JSON.parse(unreadNotificationsJSON);
+    }
+    return unreadNotifications;
+  }
+
+  async emitNotificationWithId(customCountReset: NotificationId) {
+
+    let unreadNotifications = this.readUnreadNotifications();
+    unreadNotifications = [...new Set([...unreadNotifications, customCountReset])];
+    window.localStorage.setItem("unreadNotifications", JSON.stringify(unreadNotifications));
+    this.unreadNotifications = unreadNotifications;
+    await this.notifyHigh(customCountReset);
+  }
+
+  async clearNotificationWithId(customCountReset: NotificationId) {
+    await resetNotificationCount([customCountReset]);
+    const unreadNotifications = this.readUnreadNotifications();
+    const clearedUnreadNotifications = unreadNotifications.filter((notificationId) => notificationId !== customCountReset);
+    window.localStorage.setItem("unreadNotifications", JSON.stringify(clearedUnreadNotifications));
+    this.unreadNotifications = clearedUnreadNotifications;
   }
 
   toggleBackgroundNotifications() {
@@ -225,6 +262,32 @@ export class HolochainApp extends LitElement {
         <div style="margin-top: 30px;" class="row">
           <button @click=${() => this.toggleBackgroundNotifications()}>Turn ${this.backgroundNotifications ? "OFF" : "ON" } background notifications</button>
         </div>
+
+        <div class="column" style="align-items: center;">
+          <h3>Send Notification with custom ID</h3>
+          <div>Sends a notification to the Launcher with a custom ID, i.e. it will only be reset in the Launcher
+            UI if explicitly requested.
+          </div>
+          <div class="row">
+            <input id="custom-count-reset-input" @input=${() => {
+              this.customCountReset = (this.shadowRoot!.getElementById("custom-count-reset-input") as HTMLInputElement).value;
+              console.log("this.customCountReset: ", this.customCountReset);
+            }} type="text">
+            <button @click=${async () => this.customCountReset ? this.emitNotificationWithId(this.customCountReset) : alert("No notification id set.")} style="margin-top: 10px;">Send</button>
+          </div>
+
+          <div class="column" style="margin-top: 15px; align-items: flex-end;">
+            ${this.unreadNotifications.map((id) => html`
+              <div class="row" style="margin-bottom: 3px;">
+                <span>${id}</span>
+                <button @click=${() => this.clearNotificationWithId(id)}>Clear</button>
+              </div>
+
+            `)}
+          </div>
+        </div>
+
+
         <h1>Upload image:</h1>
 
         <div id="content" style="display: flex; flex-direction: column;">
