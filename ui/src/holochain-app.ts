@@ -9,7 +9,7 @@ import {
 import { provide } from '@lit-labs/context';
 import { decode } from '@msgpack/msgpack';
 import '@material/mwc-circular-progress';
-import { HappNotification, notify } from '@holochain-launcher/api';
+import { HappNotification, notify } from '@holochain/launcher-api';
 
 import { appAgentWebsocketContext, appInfoContext } from './contexts';
 import { AllImages } from './files/files/all-images';
@@ -50,6 +50,12 @@ export class HolochainApp extends LitElement {
 
   @query("#n-copies")
   copies!: HTMLInputElement;
+
+  @state()
+  interval: any;
+
+  @state()
+  backgroundNotifications: boolean = false;
 
     // TODO! make typing right here
   async loadFileBytes(e: any) {
@@ -136,6 +142,25 @@ export class HolochainApp extends LitElement {
     this.appAgentWebsocket = await AppAgentWebsocket.connect("", "hc-stress-test");
 
     this.loading = false;
+
+    if (window.localStorage.getItem("backgroundNotifications") === "true") {
+      this.backgroundNotifications = true;
+      this.startBackgroundNotifications();
+    }
+
+  }
+
+  startBackgroundNotifications() {
+    if (this.interval) clearInterval(this.interval);
+    // Create notifications every 6 seconds to test whether app is running properly in the background
+    this.interval = setInterval(() => {
+      this.notifyMedium();
+      setTimeout(() => this.notifyHigh(), 2000);
+    }, 6000);
+  }
+
+  disconnectedCallback(): void {
+    if (this.interval) clearInterval(this.interval);
   }
 
   async notifyHigh() {
@@ -150,6 +175,17 @@ export class HolochainApp extends LitElement {
     setTimeout(async () => notify([noticiation]), 5000);
   }
 
+  async notifyHighOutdated() {
+    const noticiation: HappNotification = {
+      title: "Hello",
+      body: "This is an OUTDATED message from hc-stress-test",
+      notification_type: "random",
+      icon_file_name: undefined,
+      urgency: "high",
+      timestamp: (Date.now() - 6*60*1000),
+    }
+    setTimeout(async () => notify([noticiation]), 5000);
+  }
 
   async notifyMedium() {
     const noticiation: HappNotification = {
@@ -163,6 +199,18 @@ export class HolochainApp extends LitElement {
     setTimeout(async () => notify([noticiation]), 5000);
   }
 
+  toggleBackgroundNotifications() {
+    if (this.backgroundNotifications) {
+      this.backgroundNotifications = false;
+      clearInterval(this.interval);
+      window.localStorage.setItem("backgroundNotifications", "false");
+    } else {
+      this.backgroundNotifications = true;
+      this.startBackgroundNotifications();
+      window.localStorage.setItem("backgroundNotifications", "true");
+    }
+  }
+
   render() {
     if (this.loading)
       return html`
@@ -172,7 +220,11 @@ export class HolochainApp extends LitElement {
       <main>
         <button @click=${async () => this.notifyHigh()} style="margin-top: 50px;">Notify Launcher in 5s with High Urgency</button>
         <button @click=${async () => this.notifyMedium()} style="margin-top: 10px;">Notify Launcher in 5s with Medium Urgency</button>
+        <button @click=${async () => this.notifyHighOutdated()} style="margin-top: 10px;">Notify Launcher in 5s with OUTDATED message of high Urgency</button>
 
+        <div style="margin-top: 30px;" class="row">
+          <button @click=${() => this.toggleBackgroundNotifications()}>Turn ${this.backgroundNotifications ? "OFF" : "ON" } background notifications</button>
+        </div>
         <h1>Upload image:</h1>
 
         <div id="content" style="display: flex; flex-direction: column;">
