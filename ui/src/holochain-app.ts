@@ -109,7 +109,7 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
-    this.appAgentWebsocket = await AppAgentWebsocket.connect("", "hc-stress-test");
+    this.appAgentWebsocket = await AppAgentWebsocket.connect(new URL(`wss://unused`), "hc-stress-test");
 
     this.loading = false;
   }
