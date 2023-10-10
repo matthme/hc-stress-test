@@ -7,10 +7,9 @@
   "scripts": {
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore",
-    "build": "rimraf dist && tsc && rollup -c rollup.config.js",
-    "build:watch": "run-singleton \"rollup -w -c rollup.config.js\"",
-    "start": "tsc && concurrently -r \"npm run build:watch\" \"wds\"",
-    "package": "npm run build && cd dist && bestzip ../dist.zip *"
+    "build": "vite build",
+    "start": "vite --clearScreen false --port $UI_PORT",
+    "package": "npm run build && rimraf dist.zip && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
     "@holochain/client": "^0.12.5",
@@ -60,7 +59,9 @@
     "rollup-plugin-terser": "^7.0.2",
     "run-singleton-cli": "^0.0.7",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "vite": "^4.0.4",
+    "vite-plugin-checker": "^0.5.3"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

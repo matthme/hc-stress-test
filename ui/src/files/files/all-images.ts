@@ -71,18 +71,17 @@ export class AllImages extends LitElement {
     ([]) =>
       this.appAgentWebsocket.callZome({
         cap_secret: null,
-        cell_id: this.cellId!,
         zome_name: 'files',
         fn_name: 'get_all_images',
         payload: null,
-        provenance: this.cellId![1],
+        role_name: "files",
       }) as Promise<Array<ActionHash>>,
     () => []
   );
 
   get cellId() {
     return getCellId(
-      this.appInfo.cell_info['files'].find((c: CellInfo) => 'provisioned' in c)!
+      this.appInfo.cell_info.files.find((c: CellInfo) => 'provisioned' in c)!
     );
   }
 
@@ -140,7 +139,6 @@ export class AllImages extends LitElement {
   }
 
   renderImages() {
-    console.log('RENDERING ALL IMAGES');
     return this._fetchFiles.render({
       pending: () => html`<div class="loading">
         <mwc-circular-progress indeterminate></mwc-circular-progress>

@@ -1,17 +1,15 @@
+/* eslint-disable no-console */
 import { LitElement, css, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import {
-  AppWebsocket,
-  ActionHash,
-  AppInfo,
   AppAgentWebsocket,
 } from '@holochain/client';
 import { provide } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
-
-import { appAgentWebsocketContext, appInfoContext } from './contexts';
-import { AllImages } from './files/files/all-images';
 import { decode } from '@msgpack/msgpack';
+
+import { appAgentWebsocketContext } from './contexts';
+import { AllImages } from './files/files/all-images';
 import { getCellId } from './utils';
 
 
@@ -25,12 +23,6 @@ export class HolochainApp extends LitElement {
   @property({ type: Object })
   appAgentWebsocket!: AppAgentWebsocket;
 
-  appWebsocket!: AppWebsocket;
-
-
-  @provide({ context: appInfoContext })
-  @property({ type: Object })
-  appInfo!: AppInfo;
 
   @state()
   storing: boolean = false;
@@ -55,8 +47,8 @@ export class HolochainApp extends LitElement {
     const files: FileList = e.target.files;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log(e.target?.result);
+    reader.onload = (err) => {
+      console.log(err.target?.result);
     }
     reader.readAsArrayBuffer(files[0]);
     // TODO! make typing right here
@@ -85,21 +77,23 @@ export class HolochainApp extends LitElement {
     this.totalImgNrs = this.copies.valueAsNumber;
     this.currentImgNr = 0;
 
+    // eslint-disable-next-line no-plusplus
     for (let i = 1; i < this.copies.valueAsNumber + 1; i++) {
       this.currentImgNr = i;
       const uid = Math.floor(Math.random()*100000);
       console.log("Storing file copy ", i,"...");
-      const cellInfo = this.appInfo.cell_info["files"].find((c) => "provisioned" in c)
+      // const cellInfo = this.appInfo.cell_info["files"].find((c) => "provisioned" in c)
       ;
-      let record = await this.appAgentWebsocket.callZome({
-        cell_id: getCellId(cellInfo!)!,
+      // eslint-disable-next-line no-await-in-loop
+      const record = await this.appAgentWebsocket.callZome({
         zome_name: "files",
         fn_name: "create_file",
         payload: {
           data: this.fileBytes,
           uid,
         },
-        provenance: getCellId(cellInfo!)![1],
+        // provenance: getCellId(cellInfo!)![1],
+        role_name: "files",
       });
 
       console.log("File copy stored! Got record back: ", record);
@@ -115,14 +109,6 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
-    this.appWebsocket = await AppWebsocket.connect(
-      `ws://localhost:${process.env.HC_PORT}`
-    );
-
-    this.appInfo = await this.appWebsocket.appInfo({
-      installed_app_id: 'hc-stress-test',
-    });
-
     this.appAgentWebsocket = await AppAgentWebsocket.connect("", "hc-stress-test");
 
     this.loading = false;

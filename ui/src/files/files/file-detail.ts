@@ -39,18 +39,17 @@ export class FileDetail extends LitElement {
 
   _fetchRecord = new Task(this, ([fileHash]) => this.appAgentWebsocket.callZome({
       cap_secret: null,
-      cell_id: this.cellId!,
       zome_name: 'files',
       fn_name: 'get_file',
       payload: fileHash,
-      provenance: this.cellId![1]
+      role_name: "files",
   }) as Promise<Record | undefined>, () => [this.fileHash]);
 
   @state()
   _editing = false;
 
   get cellId() {
-    return getCellId(this.appInfo.cell_info["files"].find((c: CellInfo) => "provisioned" in c)!);
+    return getCellId(this.appInfo.cell_info.files.find((c: CellInfo) => "provisioned" in c)!);
   }
 
   // async deleteFile() {
@@ -79,7 +78,6 @@ export class FileDetail extends LitElement {
   // }
 
   renderDetail(record: Record) {
-    console.log("RENDERING IMAGE DETAIL");
     const file = decode((record.entry as any).Present.entry) as File;
     // const decoder = new TextDecoder('utf8');
     // const base64String = btoa(decoder.decode(file.data));
