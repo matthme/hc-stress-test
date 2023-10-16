@@ -1,14 +1,12 @@
 import { LitElement, html, css } from 'lit';
 import { state, customElement, property, query } from 'lit/decorators.js';
-import { InstalledCell, AppWebsocket, EntryHash, Record, ActionHash, AppInfo, AppAgentWebsocket, CellInfo } from '@holochain/client';
+import { InstalledCell, AppWebsocket, EntryHash, Record, ActionHash, AppInfo, AppAgentWebsocket, CellInfo, encodeHashToBase64 } from '@holochain/client';
 import { consume } from '@lit-labs/context';
 import { Task } from '@lit-labs/task';
 import { decode } from '@msgpack/msgpack';
 import '@material/mwc-circular-progress';
 import '@material/mwc-icon-button';
 import '@material/mwc-snackbar';
-import { serializeHash } from "@holochain-open-dev/utils";
-import { classMap } from "lit/directives/class-map.js";
 import { getCellId } from '../../utils';
 
 import './edit-file';
@@ -91,7 +89,7 @@ export class FileDetail extends LitElement {
     return html`
       <div style="display: flex; flex-direction: column">
       	<div style="display: flex; flex-direction: row">
-          <div style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? serializeHash(this.fileHash) : "file hash (yet) undefined"}</div>
+          <div style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? encodeHashToBase64(this.fileHash) : "file hash (yet) undefined"}</div>
           <div style="font-size: 18px; flex: 1;" class="hash-hover">UID: ${file.uid}</div>
 
 
@@ -105,7 +103,7 @@ export class FileDetail extends LitElement {
 // class="${classMap({
 //       hidden: !this.displayImg,
 //     })} hover-img"
-// style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? serializeHash(this.fileHash) : "file hash (yet) undefined"}</span> -->
+// style="font-size: 18px; flex: 1;" class="hash-hover">${this.fileHash ? encodeHashToBase64(this.fileHash) : "file hash (yet) undefined"}</span> -->
 
 
 // <!-- <mwc-icon-button style="margin-left: 8px" icon="edit" @click=${() => { this._editing = true; } }></mwc-icon-button>

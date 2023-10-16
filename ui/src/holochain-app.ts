@@ -9,7 +9,7 @@ import {
 import { provide } from '@lit-labs/context';
 import { decode } from '@msgpack/msgpack';
 import '@material/mwc-circular-progress';
-import { HappNotification, NotificationId, notify, resetNotificationCount } from '@holochain/launcher-api';
+import { HappNotification, NotificationId, notifyLauncher, resetNotificationCount } from '@holochain/launcher-api';
 
 import { appAgentWebsocketContext, appInfoContext } from './contexts';
 import { AllImages } from './files/files/all-images';
@@ -182,7 +182,7 @@ export class HolochainApp extends LitElement {
       custom_count_reset: customCountReset,
     }
     console.log("Sending notification: ", notification);
-    setTimeout(async () => notify([notification]), 5000);
+    setTimeout(async () => notifyLauncher([notification]), 5000);
   }
 
   async notifyHighOutdated() {
@@ -194,7 +194,7 @@ export class HolochainApp extends LitElement {
       urgency: "high",
       timestamp: (Date.now() - 6*60*1000),
     }
-    setTimeout(async () => notify([notification]), 5000);
+    setTimeout(async () => notifyLauncher([notification]), 5000);
   }
 
   async notifyMedium(customCountReset?: NotificationId) {
@@ -207,7 +207,7 @@ export class HolochainApp extends LitElement {
       timestamp: Date.now(),
       custom_count_reset: customCountReset,
     }
-    setTimeout(async () => notify([notification]), 5000);
+    setTimeout(async () => notifyLauncher([notification]), 5000);
   }
 
   readUnreadNotifications(): Array<NotificationId> {
