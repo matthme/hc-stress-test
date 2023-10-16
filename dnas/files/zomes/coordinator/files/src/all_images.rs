@@ -8,13 +8,13 @@ pub fn get_all_images(_: ()) -> ExternResult<Vec<ActionHash>> {
         .into_iter()
         .map(|link| {
 
-            let target_hash = match link.target.into_any_dht_hash() {
+            let target_hash = match link.target.into_action_hash() {
                 Some(hash) => hash,
                 None => return None
             };
 
             Some(GetInput::new(
-            target_hash,
+            AnyDhtHash::from(target_hash),
             GetOptions::default(),
             ))
         }).filter_map(|l| l)
